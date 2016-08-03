@@ -46,6 +46,3 @@ router.route('/:id')
 .delete(function (req, res, next) {
     res.end('Deleting promotion: ' + req.params.id);
 });
-
-
-module.exports.router = router;
