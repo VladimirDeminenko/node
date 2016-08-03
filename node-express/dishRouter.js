@@ -1,19 +1,11 @@
 var express = require('express');
-var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var router = express.Router();
+module.exports.router = router;
 
-var hostname = 'localhost';
-var port = 3000;
+router.use(bodyParser.json());
 
-var app = express();
-
-app.use(morgan('dev'));
-
-var dishRouter = express.Router();
-
-dishRouter.use(bodyParser.json());
-
-dishRouter.route('/')
+router.route('/')
     .all(function (req, res, next) {
         res.writeHead(200, {
             'Content-Type': 'text/plain'
@@ -33,7 +25,7 @@ dishRouter.route('/')
     res.end('Deleting all dishes');
 });
 
-dishRouter.route('/:dishId')
+router.route('/:id')
     .all(function (req, res, next) {
         res.writeHead(200, {
             'Content-Type': 'text/plain'
@@ -42,23 +34,18 @@ dishRouter.route('/:dishId')
     })
 
 .get(function (req, res, next) {
-    res.end('Will send details of the dish: ' + req.params.dishId + ' to you!');
+    res.end('Will send details of the dish: ' + req.params.id + ' to you!');
 })
 
 .put(function (req, res, next) {
-    res.write('Updating the dish: ' + req.params.dishId + '\n');
+    res.write('Updating the dish: ' + req.params.id + '\n');
     res.end('Will update the dish: ' + req.body.name +
         ' with details: ' + req.body.description);
 })
 
 .delete(function (req, res, next) {
-    res.end('Deleting dish: ' + req.params.dishId);
+    res.end('Deleting dish: ' + req.params.id);
 });
 
-app.use('/dishes', dishRouter);
 
-app.use(express.static(__dirname + '/public'));
-
-app.listen(port, hostname, function () {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
+module.exports.router = router;
