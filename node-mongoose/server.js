@@ -96,7 +96,8 @@ db.once('open', function () {
         setTimeout(function () {
             Promotions.findByIdAndUpdate(dish._id, {
                     $set: {
-                        image: 'images/buffet.png'
+                        image: 'images/buffet.png',
+                        label: 'New'
                     }
                 }, {
                     new: true
