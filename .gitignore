@@ -5,3 +5,4 @@
 /node_modules/
 /node-express-gen/node_modules/
 /node-mongodb/node_modules/
+/node-mongoose/node_modules/
