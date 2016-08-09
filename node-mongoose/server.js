@@ -146,8 +146,6 @@ db.once('open', function () {
                     console.log(leader);
 
                     leader.save(function (err, leader) {
-                            leadersTestDone = true;
-                        return;
                         db.collection('leaders').drop(function () {
                             leadersTestDone = true;
                             closeDb(db);
