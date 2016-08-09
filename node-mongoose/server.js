@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var Dishes = require('./models/dishes');
 var Promotions = require('./models/promotions');
-var Leaders = require('./models/leaders');
+var Leaders = require('./models/leadership');
 
 var dishesTestDone = false;
 var promotionsTestDone = false;
@@ -145,6 +145,8 @@ db.once('open', function () {
                     console.log(leader);
 
                     leader.save(function (err, leader) {
+                            leadersTestDone = true;
+                        return;
                         db.collection('leaders').drop(function () {
                             leadersTestDone = true;
                             closeDb(db);
