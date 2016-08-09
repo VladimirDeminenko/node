@@ -33,7 +33,7 @@ var dishSchema = new Schema({
     image: {
         type: String,
         required: true,
-        default: 'images/default-dish-image.png'
+        default: 'images/default-dish.png'
     },
     category: {
         type: String,

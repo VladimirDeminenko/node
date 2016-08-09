@@ -3,12 +3,14 @@ var mongoose = require('mongoose'),
 
 var Dishes = require('./models/dishes');
 var Promotions = require('./models/promotions');
+var Leaders = require('./models/leaders');
 
 var dishesTestDone = false;
 var promotionsTestDone = false;
+var leadersTestDone = false;
 
 var closeDb = function (db) {
-    if (dishesTestDone && promotionsTestDone) {
+    if (dishesTestDone && promotionsTestDone && leadersTestDone) {
         db.close();
     }
 }
@@ -42,7 +44,7 @@ db.once('open', function () {
         console.log('\n\n*** Dish created!');
         console.log(dish);
 
-        // get all the dishes
+        // get the dish
         setTimeout(function () {
             Dishes.findByIdAndUpdate(dish._id, {
                     $set: {
@@ -74,10 +76,10 @@ db.once('open', function () {
                         });
                     });
                 });
-        }, 3000);
+        }, 2000);
     });
 
-    // create a new dish
+    // create a new promotion
     Promotions.create({
         name: 'Weekend Grand Buffet',
         //image: will set the default value from the schema
@@ -90,7 +92,7 @@ db.once('open', function () {
         console.log('\n\n*** Promotion created!');
         console.log(dish);
 
-        // get all the promotions
+        // get the promotion
         setTimeout(function () {
             Promotions.findByIdAndUpdate(dish._id, {
                     $set: {
@@ -111,6 +113,44 @@ db.once('open', function () {
                         });
                     });
                 });
-        }, 3000);
+        }, 2000);
+    });
+
+    // create a new leader
+    Leaders.create({
+        name: 'Peter',
+        //image: will set the default value from the schema
+        designation: 'Chief Epicurious Officer',
+        abbr: 'CEO',
+        description: 'Amma Mia!'
+    }, function (err, leader) {
+        if (err) throw err;
+        console.log('\n\n*** Leader created!');
+        console.log(leader);
+
+        // get the leader
+        setTimeout(function () {
+            Leaders.findByIdAndUpdate(leader._id, {
+                    $set: {
+                        name: 'Peter Pan',
+                        image: 'images/alberto.png',
+                        description: "Our CEO, Peter, credits his hardworking East Asian immigrant parents who undertook the arduous journey to the shores of America with the intention of giving their children the best future. His mother's wizardy in the kitchen whipping up the tastiest dishes with whatever is available inexpensively at the supermarket, was his first inspiration to create the fusion cuisines for which The Frying Pan became well known.He brings his zeal for fusion cuisines to this restaurant, pioneering cross - cultural culinary connections."
+                    }
+                }, {
+                    new: true
+                })
+                .exec(function (err, leader) {
+                    if (err) throw err;
+                    console.log('\n\n*** Updated Leader!');
+                    console.log(leader);
+
+                    leader.save(function (err, leader) {
+                        db.collection('leaders').drop(function () {
+                            leadersTestDone = true;
+                            closeDb(db);
+                        });
+                    });
+                });
+        }, 2000);
     });
 });
