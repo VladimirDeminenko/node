@@ -8,5 +8,8 @@
     "start": "node server.js"
   },
   "author": "Vladimir Deminenko",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.3"
+  }
 }
