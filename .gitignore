@@ -8,3 +8,4 @@
 /node-mongoose/node_modules/
 /rest-server/node_modules/
 /basic-auth/node_modules/
+/basic-auth/sessions/
