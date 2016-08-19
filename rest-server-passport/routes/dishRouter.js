@@ -10,13 +10,14 @@ dishRouter.use(bodyParser.json());
 var Verify = require('./verify');
 
 dishRouter.route('/')
-    .get(Verify.verifyOrdinaryUser, function (req, res, next) {
+    .all(Verify.verifyOrdinaryUser)
+    .get(function (req, res, next) {
         Dishes.find({}, function (err, dish) {
             if (err) throw err;
             res.json(dish);
         });
     })
-    .post(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .post(Verify.verifyAdmin, function (req, res, next) {
         Dishes.create(req.body, function (err, dish) {
             if (err) throw err;
             console.log('Dish created!');
@@ -28,7 +29,7 @@ dishRouter.route('/')
             res.end('Added the dish with id: ' + id);
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Dishes.remove({}, function (err, resp) {
             if (err) throw err;
             res.json(resp);
@@ -36,13 +37,14 @@ dishRouter.route('/')
     });
 
 dishRouter.route('/:id')
-    .get(Verify.verifyOrdinaryUser, function (req, res, next) {
+    .all(Verify.verifyOrdinaryUser)
+    .get(function (req, res, next) {
         Dishes.findById(req.params.id, function (err, dish) {
             if (err) throw err;
             res.json(dish);
         });
     })
-    .put(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .put(Verify.verifyAdmin, function (req, res, next) {
         Dishes.findByIdAndUpdate(req.params.id, {
             $set: req.body
         }, {
@@ -52,7 +54,7 @@ dishRouter.route('/:id')
             res.json(dish);
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Dishes.findByIdAndRemove(req.params.id, function (err, resp) {
             if (err) throw err;
             res.json(resp);
@@ -60,13 +62,14 @@ dishRouter.route('/:id')
     });
 
 dishRouter.route('/:dishId/comments')
+    .all(Verify.verifyOrdinaryUser)
     .get(function (req, res, next) {
         Dishes.findById(req.params.dishId, function (err, dish) {
             if (err) throw err;
             res.json(dish.comments);
         });
     })
-    .post(Verify.verifyOrdinaryUser, function (req, res, next) {
+    .post(function (req, res, next) {
         Dishes.findById(req.params.dishId, function (err, dish) {
             if (err) throw err;
             dish.comments.push(req.body);
@@ -77,7 +80,7 @@ dishRouter.route('/:dishId/comments')
             });
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Dishes.findById(req.params.dishId, function (err, dish) {
             if (err) throw err;
             for (var i = (dish.comments.length - 1); i >= 0; i--) {
@@ -94,13 +97,14 @@ dishRouter.route('/:dishId/comments')
     });
 
 dishRouter.route('/:dishId/comments/:commentId')
+    .all(Verify.verifyOrdinaryUser)
     .get(function (req, res, next) {
         Dishes.findById(req.params.dishId, function (err, dish) {
             if (err) throw err;
             res.json(dish.comments.id(req.params.commentId));
         });
     })
-    .put(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .put(Verify.verifyAdmin, function (req, res, next) {
         // We delete the existing commment and insert the updated
         // comment as a new comment
         Dishes.findById(req.params.dishId, function (err, dish) {
@@ -114,7 +118,7 @@ dishRouter.route('/:dishId/comments/:commentId')
             });
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Dishes.findById(req.params.dishId, function (err, dish) {
             dish.comments.id(req.params.commentId).remove();
             dish.save(function (err, resp) {

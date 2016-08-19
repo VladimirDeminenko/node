@@ -10,13 +10,14 @@ leaderRouter.use(bodyParser.json());
 var Verify = require('./verify');
 
 leaderRouter.route('/')
-    .get(Verify.verifyOrdinaryUser, function (req, res, next) {
+    .all(Verify.verifyOrdinaryUser)
+    .get(function (req, res, next) {
         Leaders.find({}, function (err, leader) {
             if (err) throw err;
             res.json(leader);
         });
     })
-    .post(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .post(Verify.verifyAdmin, function (req, res, next) {
         Leaders.create(req.body, function (err, leader) {
             if (err) throw err;
             console.log('Leader created!');
@@ -28,7 +29,7 @@ leaderRouter.route('/')
             res.end('Added the leader with id: ' + id);
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Leaders.remove({}, function (err, resp) {
             if (err) throw err;
             res.json(resp);
@@ -36,13 +37,14 @@ leaderRouter.route('/')
     });
 
 leaderRouter.route('/:id')
-    .get(Verify.verifyOrdinaryUser, function (req, res, next) {
+    .all(Verify.verifyOrdinaryUser)
+    .get(function (req, res, next) {
         Leaders.findById(req.params.id, function (err, leader) {
             if (err) throw err;
             res.json(leader);
         });
     })
-    .put(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .put(Verify.verifyAdmin, function (req, res, next) {
         Leaders.findByIdAndUpdate(req.params.id, {
             $set: req.body
         }, {
@@ -52,7 +54,7 @@ leaderRouter.route('/:id')
             res.json(leader);
         });
     })
-    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
+    .delete(Verify.verifyAdmin, function (req, res, next) {
         Leaders.findByIdAndRemove(req.params.id, function (err, resp) {
             if (err) throw err;
             res.json(resp);
