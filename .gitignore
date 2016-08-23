@@ -10,3 +10,4 @@
 /basic-auth/node_modules/
 /basic-auth/sessions/
 /rest-server-passport/node_modules/
+/loopback-server/node_modules/
