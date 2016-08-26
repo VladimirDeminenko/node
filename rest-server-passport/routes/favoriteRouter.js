@@ -66,7 +66,12 @@ favoriteRouter.route('/:id')
             var favorDishes = favor[0].dishes;
             req.body.favorDishes = favorDishes;
 
-            var reqDishId = JSON.stringify(req.body.dish);
+            try {
+                var reqDishId = JSON.stringify(req.body.dish);
+            } catch (err) {
+                err.status = 500;
+                return next(err.message);
+            }
 
             for (var i = 0; i < favorDishes.length; i++) {
                 var dishId = JSON.stringify(favorDishes[i]);
@@ -85,6 +90,7 @@ favoriteRouter.route('/:id')
     })
     .post(function (req, res, next) {
         Favorites.find({
+            //        Favorites.findOne({
             "owner": req.body.owner
         }, function (err, favor) {
             if (err) throw err;
@@ -92,17 +98,22 @@ favoriteRouter.route('/:id')
             var result = '"' + req.body.dish + '"';
             var favorIdx = req.body.getFavorIndex(favor);
 
-            if (favorIdx < 0) {
-                result += ' is not found.'
-                req.body.favorDishes.push(req.body.dish);
+            try {
+                if (favorIdx < 0) {
+                    result += ' is not found.'
+                    req.body.favorDishes.push(req.body.dish);
 
-                favor.save(function (err, favor) {
-                    if (err) throw err;
+                    favor.save(function (err, favor) {
+                        if (err) throw err;
 
-                    res.json(favor);
-                });
-            } else {
-                result = 'index of ' + result + ' is ' + favorIdx + '.';
+                        res.json(favor);
+                    });
+                } else {
+                    result = 'index of ' + result + ' is ' + favorIdx + '.';
+                }
+            } catch (err) {
+                err.status = 500;
+                return next(err.message);
             }
 
             res.writeHead(200, {
