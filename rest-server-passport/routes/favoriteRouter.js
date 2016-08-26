@@ -12,6 +12,7 @@ var Verify = require('./verify');
 favoriteRouter.route('/')
     .all(Verify.verifyOrdinaryUser, function (req, res, next) {
         req.body.owner = req.decoded._doc._id;
+
         next();
     })
     .get(function (req, res, next) {
@@ -59,6 +60,27 @@ favoriteRouter.route('/:id')
         req.body.owner = req.decoded._doc._id;
         req.body.dish = req.params.id;
 
+        req.body.getFavorIndex = function (favor) {
+            var result = -1;
+
+            var favorDishes = favor[0].dishes;
+            req.body.favorDishes = favorDishes;
+
+            var reqDishId = JSON.stringify(req.body.dish);
+
+            for (var i = 0; i < favorDishes.length; i++) {
+                var dishId = JSON.stringify(favorDishes[i]);
+
+                if (reqDishId === dishId) {
+                    result = i;
+
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         next();
     })
     .post(function (req, res, next) {
@@ -66,41 +88,28 @@ favoriteRouter.route('/:id')
             "owner": req.body.owner
         }, function (err, favor) {
             if (err) throw err;
-            var result = '';
-            var myObj = favor[0]['dishes'];
 
-            var idx = 0;
-            for (var field in myObj) {
-                idx++;
-                result += '\n' + idx + '(' + field + '): ' + myObj[field];
-            }
+            var result = '"' + req.body.dish + '"';
+            var favorIdx = req.body.getFavorIndex(favor);
 
-            var dishesArr = favor[0].dishes;
+            if (favorIdx < 0) {
+                result += ' is not found.'
+                req.body.favorDishes.push(req.body.dish);
 
-            result = '_id:\t' + favor[0]._id + '\nowner:\t' + favor[0].owner + '\ndishes:\t' + favor[0].dishes + '\ntypeof(dishes):\t'
-                + typeof (favor[0].dishes)
-                + 'dishesArr.length:\t' + dishesArr.length;
+                favor.save(function (err, favor) {
+                    if (err) throw err;
 
-
-
-            for (var i = 0; i < dishesArr.length; i++) {
-                var dish = dishesArr[i];
-
-                result += '\n(dishes[' + i + ']):\t' + dish;
-
-                if (dish === req.body.dish) {
-                    //                    result = dish;
-                    break;
-                } else {
-                    //result += '\n' + dish;
-                }
+                    res.json(favor);
+                });
+            } else {
+                result = 'index of ' + result + ' is ' + favorIdx + '.';
             }
 
             res.writeHead(200, {
                 'Content-Type': 'text/plain'
             });
 
-            res.end('***' + result + '\n***');
+            res.end(result);
         });
         /** /
                     favor.save(function (err, result) {
