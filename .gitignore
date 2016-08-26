@@ -11,3 +11,6 @@
 /basic-auth/sessions/
 /rest-server-passport/node_modules/
 /loopback-server/node_modules/
+/conFusion-loopback/
+/conFusion-Angular/
+/Loopback-Server-Bluemix/
