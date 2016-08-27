@@ -63,24 +63,20 @@ favoriteRouter.route('/:id')
         req.body.getFavorIndex = function (favorDoc) {
             var result = -1;
 
-            var favorDishes = favorDoc.dishes;
-            req.body.favorDishes = favorDishes;
-
             try {
                 var reqDishId = JSON.stringify(req.body.dish);
-            } catch (err) {
-                err.status = 500;
-                return next(err.message);
-            }
 
-            for (var i = 0; i < favorDishes.length; i++) {
-                var dishId = JSON.stringify(favorDishes[i]);
+                for (var i = 0; i < favorDoc.dishes.length; i++) {
+                    var dishId = JSON.stringify(favorDoc.dishes[i]);
 
-                if (reqDishId === dishId) {
-                    result = i;
+                    if (reqDishId === dishId) {
+                        result = i;
 
-                    break;
+                        break;
+                    }
                 }
+            } catch (err) {
+                return next('*** 1: ' + err.message);
             }
 
             return result;
@@ -94,13 +90,27 @@ favoriteRouter.route('/:id')
         }, function (err, favorDoc) {
             if (err) throw err;
 
-            var result = '"' + req.body.dish + '"';
+            var result = '';
             var favorIdx = req.body.getFavorIndex(favorDoc);
 
             try {
+                if (!favorDoc) {
+                    Favorites.create(req.body, function (err, favorite) {
+                        if (err) throw err;
+
+                        res.writeHead(200, {
+                            'Content-Type': 'text/plain'
+                        });
+
+                        result += 'Created the favorite with id: "' + favorite._id + '".';
+                    });
+                }
+
+                result += '"' + req.body.dish + '"';
+
                 if (favorIdx < 0) {
-                    result += ' is not found.'
-                    req.body.favorDishes.push(req.body.dish);
+                    result += ' is added.'
+                    favorDoc.dishes.push(req.body.dish);
 
                     favorDoc.save(function (err, resp) {
                         if (err) throw err;
@@ -111,8 +121,7 @@ favoriteRouter.route('/:id')
                     result = 'index of ' + result + ' is ' + favorIdx + '.';
                 }
             } catch (err) {
-                err.status = 500;
-                return next(err.message);
+                return next('*** 2: ' + err.message);
             }
 
             res.end(result);
