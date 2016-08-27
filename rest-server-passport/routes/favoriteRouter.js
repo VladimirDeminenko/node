@@ -60,10 +60,10 @@ favoriteRouter.route('/:id')
         req.body.owner = req.decoded._doc._id;
         req.body.dish = req.params.id;
 
-        req.body.getFavorIndex = function (favor) {
+        req.body.getFavorIndex = function (favorDoc) {
             var result = -1;
 
-            var favorDishes = favor[0].dishes;
+            var favorDishes = favorDoc.dishes;
             req.body.favorDishes = favorDishes;
 
             try {
@@ -89,24 +89,23 @@ favoriteRouter.route('/:id')
         next();
     })
     .post(function (req, res, next) {
-        Favorites.find({
-            //        Favorites.findOne({
+        Favorites.findOne({
             "owner": req.body.owner
-        }, function (err, favor) {
+        }, function (err, favorDoc) {
             if (err) throw err;
 
             var result = '"' + req.body.dish + '"';
-            var favorIdx = req.body.getFavorIndex(favor);
+            var favorIdx = req.body.getFavorIndex(favorDoc);
 
             try {
                 if (favorIdx < 0) {
                     result += ' is not found.'
                     req.body.favorDishes.push(req.body.dish);
 
-                    favor.save(function (err, favor) {
+                    favorDoc.save(function (err, resp) {
                         if (err) throw err;
 
-                        res.json(favor);
+                        res.json(resp);
                     });
                 } else {
                     result = 'index of ' + result + ' is ' + favorIdx + '.';
@@ -116,41 +115,8 @@ favoriteRouter.route('/:id')
                 return next(err.message);
             }
 
-            res.writeHead(200, {
-                'Content-Type': 'text/plain'
-            });
-
             res.end(result);
         });
-        /** /
-                    favor.save(function (err, result) {
-                        if (err) throw err;
-                        res.writeHead(200, {
-                            'Content-Type': 'text/plain'
-                        });
-                        res.end('Deleted all comments!');
-                    });
-        /**/
-        /** /
-                // two steps:
-                // - remove all user's favorites
-                // - create a new user's favorite with dish collection
-                Favorites.remove({
-                    "owner": req.body.owner
-                }, function (err, resp) {
-                    if (err) throw err;
-
-                    Favorites.create(req.body, function (err, favorite) {
-                        if (err) throw err;
-
-                        res.writeHead(200, {
-                            'Content-Type': 'text/plain'
-                        });
-
-                        res.end('Created the favorite with id: ' + favorite._id);
-                    });
-                });
-        /**/
     })
     .delete(function (req, res, next) {
         Favorites.remove({
