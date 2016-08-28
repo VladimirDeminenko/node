@@ -26,11 +26,11 @@ favoriteRouter.route('/')
                 res.json(favorite);
             });
     })
-    .post(function (req, res, next) {
+    .put(function (req, res, next) {
         // two steps:
         // - remove all user's favorites
-        // - create a new user's favorite with dish collection from req.body
-        // req.body: {'dishes': ['dishid1', 'dishid2', ..., 'dishidN']}
+        // - create a new user's favorite with a dish collection from req.body
+        // req.body: {"dishes": ["dishid1", "dishid2", ..., "dishidN"]}
         Favorites.remove({
             'owner': req.body.owner
         }, function (err, resp) {
@@ -38,10 +38,6 @@ favoriteRouter.route('/')
 
             Favorites.create(req.body, function (err, favorite) {
                 if (err) throw err;
-
-                res.writeHead(200, {
-                    'Content-Type': 'text/plain'
-                });
 
                 res.end('Created the favorite with id: ' + favorite._id);
             });
@@ -61,14 +57,14 @@ favoriteRouter.route('/:id')
         req.body.owner = req.decoded._doc._id;
         req.body.dish = req.params.id;
 
-        req.body.getFavorIndex = function (favorDoc) {
+        req.body.getDishIndex = function (favoriteDoc) {
             var result = -1;
 
             try {
                 var reqDishId = JSON.stringify(req.body.dish);
 
-                for (var i = 0; i < favorDoc.dishes.length; i++) {
-                    var dishId = JSON.stringify(favorDoc.dishes[i]);
+                for (var i = 0; i < favoriteDoc.dishes.length; i++) {
+                    var dishId = JSON.stringify(favoriteDoc.dishes[i]);
 
                     if (reqDishId === dishId) {
                         result = i;
@@ -88,13 +84,13 @@ favoriteRouter.route('/:id')
     .post(function (req, res, next) {
         Favorites.findOne({
             'owner': req.body.owner
-        }, function (err, favorDoc) {
+        }, function (err, favoriteDoc) {
             if (err) throw err;
 
             var result = '';
 
             try {
-                if (!favorDoc) {
+                if (!favoriteDoc) {
                     Favorites.create(req.body, function (err, favorite) {
                         if (err) throw err;
 
@@ -109,17 +105,17 @@ favoriteRouter.route('/:id')
                     });
                 } else {
                     result += '"' + req.body.dish + '"';
-                    var favorIdx = req.body.getFavorIndex(favorDoc);
+                    var dishIdx = req.body.getDishIndex(favoriteDoc);
 
-                    if (favorIdx < 0) {
+                    if (dishIdx < 0) {
                         result += ' is added.'
-                        favorDoc.dishes.push(req.body.dish);
+                        favoriteDoc.dishes.push(req.body.dish);
 
-                        favorDoc.save(function (err, resp) {
+                        favoriteDoc.save(function (err, resp) {
                             if (err) throw err;
                         });
                     } else {
-                        result = ' *** favorite dish ' + result + ' exists: index is ' + favorIdx + '.';
+                        result = ' *** favorite dish ' + result + ' exists: index is ' + dishIdx + '.';
                     }
 
                     res.end(result);
@@ -130,11 +126,34 @@ favoriteRouter.route('/:id')
         });
     })
     .delete(function (req, res, next) {
-        Favorites.remove({
+        Favorites.findOne({
             'owner': req.body.owner
-        }, function (err, resp) {
+        }, function (err, favoriteDoc) {
             if (err) throw err;
-            res.json(resp);
+
+            var result = '';
+
+            try {
+                if (!favoriteDoc) {
+                    result += '*** favorite dish list for user "' + req.body.owner + '" don\'t exist.';
+                } else {
+                    result += '"' + req.body.dish + '"';
+                    var dishIdx = req.body.getDishIndex(favoriteDoc);
+
+                    if (dishIdx < 0) {
+                        result += ' is not in favorite dish list.'
+                    } else {
+                        favoriteDoc.dishes.splice(dishIdx, 1);
+                        favoriteDoc.save();
+
+                        result += ' was removed from favorite dish list.';
+                    }
+                }
+
+                res.end(result);
+            } catch (err) {
+                return next(err);
+            }
         });
     });
 
