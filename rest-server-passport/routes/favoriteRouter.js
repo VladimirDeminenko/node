@@ -26,10 +26,11 @@ favoriteRouter.route('/')
                 res.json(favorite);
             });
     })
-    .put(function (req, res, next) {
+    .post(function (req, res, next) {
         // two steps:
         // - remove all user's favorites
-        // - create a new user's favorite with dish collection
+        // - create a new user's favorite with dish collection from req.body
+        // req.body: {"dishes": ["dishid1", "dishid2", ..., "dishidN"]}
         Favorites.remove({
             "owner": req.body.owner
         }, function (err, resp) {
