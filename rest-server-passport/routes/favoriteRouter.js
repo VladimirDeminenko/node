@@ -119,7 +119,7 @@ favoriteRouter.route('/:id')
                             if (err) throw err;
                         });
                     } else {
-                        result = ' *** this favorite exists: index of ' + result + ' is ' + favorIdx + '.';
+                        result = ' *** favorite dish ' + result + ' exists: index is ' + favorIdx + '.';
                     }
 
                     res.end(result);
