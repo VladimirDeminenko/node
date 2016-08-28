@@ -18,7 +18,7 @@ favoriteRouter.route('/')
     .get(function (req, res, next) {
         Favorites
             .find({
-                "owner": req.body.owner
+                'owner': req.body.owner
             })
             .populate('owner dishes')
             .exec(function (err, favorite) {
@@ -30,9 +30,9 @@ favoriteRouter.route('/')
         // two steps:
         // - remove all user's favorites
         // - create a new user's favorite with dish collection from req.body
-        // req.body: {"dishes": ["dishid1", "dishid2", ..., "dishidN"]}
+        // req.body: {'dishes': ['dishid1', 'dishid2', ..., 'dishidN']}
         Favorites.remove({
-            "owner": req.body.owner
+            'owner': req.body.owner
         }, function (err, resp) {
             if (err) throw err;
 
@@ -49,7 +49,7 @@ favoriteRouter.route('/')
     })
     .delete(function (req, res, next) {
         Favorites.remove({
-            "owner": req.body.owner
+            'owner': req.body.owner
         }, function (err, resp) {
             if (err) throw err;
             res.json(resp);
@@ -77,7 +77,7 @@ favoriteRouter.route('/:id')
                     }
                 }
             } catch (err) {
-                next('*** 1: ' + err.message);
+                next(err);
             }
 
             return result;
@@ -87,7 +87,7 @@ favoriteRouter.route('/:id')
     })
     .post(function (req, res, next) {
         Favorites.findOne({
-            "owner": req.body.owner
+            'owner': req.body.owner
         }, function (err, favorDoc) {
             if (err) throw err;
 
@@ -125,13 +125,13 @@ favoriteRouter.route('/:id')
                     res.end(result);
                 }
             } catch (err) {
-                return next('*** 2: ' + err.message);
+                return next(err);
             }
         });
     })
     .delete(function (req, res, next) {
         Favorites.remove({
-            "owner": req.body.owner
+            'owner': req.body.owner
         }, function (err, resp) {
             if (err) throw err;
             res.json(resp);
