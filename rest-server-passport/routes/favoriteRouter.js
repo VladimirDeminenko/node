@@ -76,7 +76,7 @@ favoriteRouter.route('/:id')
                     }
                 }
             } catch (err) {
-                return next('*** 1: ' + err.message);
+                next('*** 1: ' + err.message);
             }
 
             return result;
@@ -91,40 +91,41 @@ favoriteRouter.route('/:id')
             if (err) throw err;
 
             var result = '';
-            var favorIdx = req.body.getFavorIndex(favorDoc);
 
             try {
                 if (!favorDoc) {
                     Favorites.create(req.body, function (err, favorite) {
                         if (err) throw err;
 
-                        res.writeHead(200, {
-                            'Content-Type': 'text/plain'
+                        favorite.dishes.push(req.body.dish);
+                        favorite.save(function (err, resp) {
+                            if (err) throw err;
                         });
 
                         result += 'Created the favorite with id: "' + favorite._id + '".';
-                    });
-                }
 
-                result += '"' + req.body.dish + '"';
-
-                if (favorIdx < 0) {
-                    result += ' is added.'
-                    favorDoc.dishes.push(req.body.dish);
-
-                    favorDoc.save(function (err, resp) {
-                        if (err) throw err;
-
-                        res.json(resp);
+                        res.end(result);
                     });
                 } else {
-                    result = 'index of ' + result + ' is ' + favorIdx + '.';
+                    result += '"' + req.body.dish + '"';
+                    var favorIdx = req.body.getFavorIndex(favorDoc);
+
+                    if (favorIdx < 0) {
+                        result += ' is added.'
+                        favorDoc.dishes.push(req.body.dish);
+
+                        favorDoc.save(function (err, resp) {
+                            if (err) throw err;
+                        });
+                    } else {
+                        result = ' *** this favorite exists: index of ' + result + ' is ' + favorIdx + '.';
+                    }
+
+                    res.end(result);
                 }
             } catch (err) {
                 return next('*** 2: ' + err.message);
             }
-
-            res.end(result);
         });
     })
     .delete(function (req, res, next) {
