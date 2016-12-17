@@ -20,6 +20,10 @@ var promotionSchema = new Schema({
         type: String,
         default: ''
     },
+    featured: {
+        type: Boolean,
+        default: false
+    },
     price: {
         type: Currency,
         required: true

@@ -25,8 +25,8 @@ var getDishIndex = function (favoriteDoc, dish) {
 }
 
 favoriteRouter.route('/')
-    .all(Verify.verifyOrdinaryUser, function (req, res, next) {
-        req.body.owner = req.decoded._doc._id;
+    .all(function (req, res, next) {
+        req.body.owner = req.decoded._id;
 
         next();
     })
@@ -37,13 +37,13 @@ favoriteRouter.route('/')
             })
             .populate('owner dishes')
             .exec(function (err, favorite) {
-                if (err) throw err;
+                if (err) next(err);
                 res.json(favorite);
             });
     })
-    .post(function (req, res, next) {
+    .post(Verify.verifyOrdinaryUser, function (req, res, next) {
         if (!req.body._id) {
-           throw new Error('_id is not defined.');
+            throw new Error('_id is not defined.');
         }
 
         req.body.dish = req.body._id;
@@ -51,18 +51,18 @@ favoriteRouter.route('/')
         Favorites.findOne({
             'owner': req.body.owner
         }, function (err, favoriteDoc) {
-            if (err) throw err;
+            if (err) next(err);
 
             var result = '';
 
             try {
                 if (!favoriteDoc) {
                     Favorites.create(req.body, function (err, favorite) {
-                        if (err) throw err;
+                        if (err) next(err);
 
                         favorite.dishes.push(req.body.dish);
                         favorite.save(function (err, resp) {
-                            if (err) throw err;
+                            if (err) next(err);
                         });
 
                         result += 'Created the favorite with id: "' + favorite._id + '".';
@@ -78,7 +78,7 @@ favoriteRouter.route('/')
                         favoriteDoc.dishes.push(req.body.dish);
 
                         favoriteDoc.save(function (err, resp) {
-                            if (err) throw err;
+                            if (err) next(err);
                         });
                     } else {
                         result = ' *** favorite dish ' + result + ' exists: index is ' + dishIdx + '.';
@@ -91,7 +91,7 @@ favoriteRouter.route('/')
             }
         });
     })
-    .put(function (req, res, next) {
+    .put(Verify.verifyOrdinaryUser, function (req, res, next) {
         // two steps:
         // - remove all user's favorites
         // - create a new user's favorite with a dish collection from req.body
@@ -99,36 +99,36 @@ favoriteRouter.route('/')
         Favorites.remove({
             'owner': req.body.owner
         }, function (err, resp) {
-            if (err) throw err;
+            if (err) next(err);
 
             Favorites.create(req.body, function (err, favorite) {
-                if (err) throw err;
+                if (err) next(err);
 
                 res.end('Created the favorite with id: ' + favorite._id);
             });
         });
     })
-    .delete(function (req, res, next) {
+    .delete(Verify.verifyOrdinaryUser, function (req, res, next) {
         Favorites.remove({
             'owner': req.body.owner
         }, function (err, resp) {
-            if (err) throw err;
+            if (err) next(err);
             res.json(resp);
         });
     });
 
 favoriteRouter.route('/:id')
-    .all(Verify.verifyOrdinaryUser, function (req, res, next) {
-        req.body.owner = req.decoded._doc._id;
+    .all(function (req, res, next) {
+        req.body.owner = req.decoded._id;
         req.body.dish = req.params.id;
 
         next();
     })
-    .delete(function (req, res, next) {
+    .delete(Verify.verifyOrdinaryUser, function (req, res, next) {
         Favorites.findOne({
             'owner': req.body.owner
         }, function (err, favoriteDoc) {
-            if (err) throw err;
+            if (err) next(err);
 
             var result = '';
 
