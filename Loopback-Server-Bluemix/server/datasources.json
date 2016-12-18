@@ -1,0 +1,21 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "images": {
+    "name": "images",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./client/"
+  },
+  "cloudant": {
+    "host": "1f53f14c-a1f5-41b3-8e62-3f676920ed60-bluemix.cloudant.com",
+    "port": 443,
+    "database": "confusion",
+    "username": "1f53f14c-a1f5-41b3-8e62-3f676920ed60-bluemix",
+    "password": "b82d9e1b3ada433ac8faf126853fb2de679e4ece67adf51980ff7f0ac26908f4",
+    "name": "cloudant",
+    "connector": "cloudant"
+  }
+}

@@ -1,0 +1,12 @@
+applications:
+- path: .
+  memory: 512M
+  instances: 1
+  domain: eu-gb.mybluemix.net
+  name: Muppala-Testing
+  host: muppala-testing
+  disk_quota: 1024M
+  services:
+  - Muppala-Testing-AdvancedMobileAccess
+  - Muppala-Testing-imfpush
+  - Muppala-Testing-cloudantNoSQLDB

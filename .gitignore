@@ -11,7 +11,7 @@
 /basic-auth/sessions/
 /rest-server-passport/node_modules/
 /loopback-server/node_modules/
-/conFusion-loopback/
-/conFusion-Angular/
-/Loopback-Server-Bluemix/
+/conFusion-loopback/node_modules/
+/conFusion-Angular/node_modules/
+/Loopback-Server-Bluemix/node_modules/
 .idea

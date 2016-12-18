@@ -11,6 +11,8 @@ var Verify = require('./verify');
 
 dishRouter.route('/')
     .get(function (req, res, next) {
+        console.info('dishRouter.get(req):', req);
+
         Dishes.find(req.query)
             .populate('comments.postedBy')
             .exec(function (err, dish) {
